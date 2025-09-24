@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mock-stocks-backend
+    env_file:
+      - ./backend/.env
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: mock-stocks-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    environment:
+      # If your frontend needs to point to a non-default API URL at build time,
+      # set it here and rebuild. Example:
+      # - REACT_APP_STOCKS_API=http://localhost:5000
+      # Note: React only reads REACT_APP_* at build time.
+      - NODE_ENV=production
+    restart: unless-stopped
+
+# Optional local MongoDB (commented out; use Atlas in production)
+#  mongo:
+#    image: mongo:6
+#    container_name: mock-stocks-mongo
+#    ports:
+#      - "27017:27017"
+#    volumes:
+#      - mongo_data:/data/db
+#    restart: unless-stopped
+
+#volumes:
+#  mongo_data:

@@ -69,13 +69,15 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefer-offline --no-audit || npm install
 
-      - name: Build
-        run: npm run build
-
-      - name: Test
+      - name: Build (cross-platform)
         run: |
-          # Run tests non-interactively
-          npm test -- --watchAll=false || echo "No tests or tests failed; continuing to allow CI to pass for now."
+          # Call craco directly to avoid Windows-specific 'set' in package.json scripts
+          npx craco build
+
+      - name: Test (non-blocking)
+        run: |
+          # Run tests directly via craco; do not fail the build if tests fail or are absent
+          npx craco test --watchAll=false || echo "No tests or tests failed; continuing to allow CI to pass for now."
 
       - name: Docker Build (frontend)
         working-directory: .

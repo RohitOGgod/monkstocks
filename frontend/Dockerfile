@@ -3,10 +3,16 @@
 # 1) Build stage
 FROM node:18-alpine AS build
 WORKDIR /app
-ENV NODE_OPTIONS=--openssl-legacy-provider
+ENV NODE_OPTIONS=--openssl-legacy-provider \
+    SKIP_PREFLIGHT_CHECK=true
+
+# Avoid downloading Cypress binary during install (devDependency)
+ARG CYPRESS_INSTALL_BINARY=0
+ENV CYPRESS_INSTALL_BINARY=${CYPRESS_INSTALL_BINARY}
 # Install deps
 COPY package*.json ./
-RUN npm ci || npm install
+# Use --ignore-scripts to skip dev postinstalls like Cypress; craco/react build works without postinstall
+RUN npm ci --ignore-scripts || npm install --ignore-scripts
 # Copy source and build
 COPY . .
 # Build with default envs; override REACT_APP_* at build time if needed

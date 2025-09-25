@@ -43,7 +43,8 @@ jobs:
       - name: Docker Build (backend)
         working-directory: .
         run: |
-          docker build -f backend/Dockerfile -t mock-stocks-backend:ci .
+          # Use backend as the build context so Dockerfile COPY works
+          docker build -f backend/Dockerfile -t mock-stocks-backend:ci backend
 
   frontend:
     name: Frontend - Build, Tests, Docker Build
@@ -79,7 +80,8 @@ jobs:
       - name: Docker Build (frontend)
         working-directory: .
         run: |
-          docker build -f frontend/Dockerfile -t mock-stocks-frontend:ci .
+          # Use frontend as the build context so Dockerfile COPY works
+          docker build -f frontend/Dockerfile -t mock-stocks-frontend:ci frontend
 
   compose-validate:
     name: Compose Config Validation

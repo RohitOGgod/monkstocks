@@ -8,36 +8,48 @@ services:
     container_name: mock-stocks-backend
     env_file:
       - ./backend/.env
+    environment:
+      # Override the DB connection to use the local mongo service if not set in .env
+      MONGO_CONNECTION_STRING: ${MONGO_CONNECTION_STRING:-mongodb://mongo:27017/mockstocks}
     ports:
       - "5000:5000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health" ]
+      interval: 20s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        # Ensure React uses the internal service name for API calls at build-time
+        REACT_APP_STOCKS_API: http://backend:5000
     container_name: mock-stocks-frontend
     ports:
       - "3000:80"
     depends_on:
       - backend
-    environment:
-      # If your frontend needs to point to a non-default API URL at build time,
-      # set it here and rebuild. Example:
-      # - REACT_APP_STOCKS_API=http://localhost:5000
-      # Note: React only reads REACT_APP_* at build time.
-      - NODE_ENV=production
     restart: unless-stopped
 
-# Optional local MongoDB (commented out; use Atlas in production)
-#  mongo:
-#    image: mongo:6
-#    container_name: mock-stocks-mongo
-#    ports:
-#      - "27017:27017"
-#    volumes:
-#      - mongo_data:/data/db
-#    restart: unless-stopped
+  mongo:
+    image: mongo:6
+    container_name: mock-stocks-mongo
+    ports:
+      - "27017:27017" # optional: expose for local tools
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
-#volumes:
-#  mongo_data:
+volumes:
+  mongo_data:

@@ -41,6 +41,10 @@ app.use(cors());
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
+// healthcheck endpoint for Docker
+app.get('/health', (req, res) => {
+  res.status(200).send('ok');
+});
 app.use('/stocks', stockRoutes);
 app.use('/user', userRoutes);
 app.use('/purchased', purchasedStockRoutes);

@@ -27,7 +27,7 @@ const CurrentPrice = (props) => {
       mounted = false;
       if (socket && handler) socket.off(ticker, handler);
     }
-  }, [socket, ticker]);
+  }, [socket, ticker, price]);
 
   return (
     <>

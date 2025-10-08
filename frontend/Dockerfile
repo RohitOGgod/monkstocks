@@ -6,6 +6,10 @@ WORKDIR /app
 ENV NODE_OPTIONS=--openssl-legacy-provider \
     SKIP_PREFLIGHT_CHECK=true
 
+# Accept API endpoint at build time and export it for CRA
+ARG REACT_APP_STOCKS_API
+ENV REACT_APP_STOCKS_API=$REACT_APP_STOCKS_API
+
 # Avoid downloading Cypress binary during install (devDependency)
 ARG CYPRESS_INSTALL_BINARY=0
 ENV CYPRESS_INSTALL_BINARY=${CYPRESS_INSTALL_BINARY}
